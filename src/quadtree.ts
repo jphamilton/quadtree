@@ -85,28 +85,28 @@ export default class Quadtree {
 
     private getIndex(rect: Rect) {
         let index = -1;
-        let verticalMidpoint = this.bounds.x + this.width2;
-        let horizontalMidpoint = this.bounds.y + this.height2;
+        let xmid = this.bounds.x + this.width2;
+        let ymid = this.bounds.y + this.height2;
     
         // rect can completely fit within the top quadrants
-        let topQuadrant = (rect.y < horizontalMidpoint && rect.y + rect.height < horizontalMidpoint);
+        let top = (rect.y < ymid && rect.y + rect.height < ymid);
         
-        //rect can completely fit within the bottom quadrants
-        let bottomQuadrant = (rect.y > horizontalMidpoint);
+        // rect can completely fit within the bottom quadrants
+        let bottom = (rect.y > ymid);
     
-        //rect can completely fit within the left quadrants
-        if (rect.x < verticalMidpoint && rect.x + rect.width < verticalMidpoint) {
-            if(topQuadrant) {
+        // rect can completely fit within the left quadrants
+        if (rect.x < xmid && rect.x + rect.width < xmid) {
+            if(top) {
                 index = 1;
-            } else if (bottomQuadrant) {
+            } else if (bottom) {
                 index = 2;
             }
     
-        //rect can completely fit within the right quadrants 
-        } else if (rect.x > verticalMidpoint) {
-            if(topQuadrant) {
+        // rect can completely fit within the right quadrants 
+        } else if (rect.x > xmid) {
+            if(top) {
                 index = 0;
-            } else if (bottomQuadrant) {
+            } else if (bottom) {
                 index = 3;
             }
         }
@@ -115,8 +115,8 @@ export default class Quadtree {
     };
 
     private split() {
-        let width = Math.round(this.bounds.width / 2);
-        let height  = Math.round(this.bounds.height / 2);
+        let width = Math.round(this.width2);
+        let height  = Math.round(this.height2);
         let x = Math.round(this.bounds.x);
         let y = Math.round(this.bounds.y);  
 
