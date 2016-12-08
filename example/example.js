@@ -69,12 +69,15 @@
 	        this.width2 = this.bounds.width / 2;
 	    }
 	    Quadtree.prototype.insert = function (rect) {
+	        var _this = this;
 	        var i = 0;
-	        var index;
+	        var indices;
 	        if (this.nodes[0]) {
-	            index = this.getIndex(rect);
-	            if (index !== -1) {
-	                this.nodes[index].insert(rect);
+	            indices = this.getIndex(rect);
+	            if (indices.length) {
+	                indices.forEach(function (i) {
+	                    _this.nodes[i].insert(rect);
+	                });
 	                return;
 	            }
 	        }
@@ -84,9 +87,11 @@
 	                this.split();
 	            }
 	            while (i < this.objects.length) {
-	                index = this.getIndex(this.objects[i]);
-	                if (index !== -1) {
-	                    this.nodes[index].insert(this.objects.splice(i, 1)[0]);
+	                indices = this.getIndex(this.objects[i]);
+	                if (indices.length) {
+	                    indices.forEach(function (i) {
+	                        _this.nodes[i].insert(_this.objects.splice(i, 1)[0]);
+	                    });
 	                }
 	                else {
 	                    i = i + 1;
@@ -95,11 +100,14 @@
 	        }
 	    };
 	    Quadtree.prototype.retrieve = function (rect) {
-	        var index = this.getIndex(rect);
+	        var _this = this;
+	        var indices = this.getIndex(rect);
 	        var result = this.objects;
 	        if (this.nodes[0]) {
-	            if (index !== -1) {
-	                result = result.concat(this.nodes[index].retrieve(rect));
+	            if (indices.length) {
+	                indices.forEach(function (i) {
+	                    result = result.concat(_this.nodes[i].retrieve(rect));
+	                });
 	            }
 	            else {
 	                for (var i = 0; i < this.nodes.length; i++) {
@@ -107,7 +115,7 @@
 	                }
 	            }
 	        }
-	        return result;
+	        return result.filter(function (x, n, a) { return a.indexOf(x) === n; });
 	    };
 	    ;
 	    Quadtree.prototype.clear = function () {
@@ -124,25 +132,41 @@
 	        var index = -1;
 	        var xmid = this.bounds.x + this.width2;
 	        var ymid = this.bounds.y + this.height2;
-	        var top = (rect.y < ymid && rect.y + rect.height < ymid);
+	        var results = [];
+	        var top = (rect.y < ymid);
 	        var bottom = (rect.y > ymid);
-	        if (rect.x < xmid && rect.x + rect.width < xmid) {
+	        if (rect.x < xmid) {
 	            if (top) {
-	                index = 1;
+	                results.push(1);
+	                if (rect.x + rect.width > xmid) {
+	                    results.push(0);
+	                }
+	                if (rect.y + rect.height > ymid) {
+	                    results.push(2);
+	                }
+	                if (rect.y + rect.height + rect.x + rect.width > xmid) {
+	                    results.push(3);
+	                }
 	            }
 	            else if (bottom) {
-	                index = 2;
+	                results.push(2);
+	                if (rect.x + rect.width > xmid) {
+	                    results.push(3);
+	                }
 	            }
 	        }
 	        else if (rect.x > xmid) {
 	            if (top) {
-	                index = 0;
+	                results.push(0);
+	                if (rect.y + rect.height > ymid) {
+	                    results.push(3);
+	                }
 	            }
-	            else if (bottom) {
-	                index = 3;
+	            else {
+	                results.push(3);
 	            }
 	        }
-	        return index;
+	        return results;
 	    };
 	    ;
 	    Quadtree.prototype.split = function () {

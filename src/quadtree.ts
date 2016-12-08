@@ -16,14 +16,16 @@ export default class Quadtree {
 
     insert(rect: Rect) {
         let i = 0;
-        let index;
+        let indices: number[];
 
         //if we have subnodes ...
         if (this.nodes[0]) {
-            index = this.getIndex(rect);
+            indices = this.getIndex(rect);
 
-            if (index !== -1) {
-                this.nodes[index].insert(rect);
+            if (indices.length) {
+                indices.forEach(i => {
+                    this.nodes[i].insert(rect);
+                });
                 return;
             }
         }
@@ -36,10 +38,12 @@ export default class Quadtree {
             }
 
             while (i < this.objects.length) {
-                index = this.getIndex(this.objects[i]);
+                indices = this.getIndex(this.objects[i]);
 
-                if (index !== -1) {
-                    this.nodes[index].insert(this.objects.splice(i, 1)[0]);
+                if (indices.length) {
+                    indices.forEach(i => {
+                        this.nodes[i].insert(this.objects.splice(i, 1)[0]);
+                    });
                 } else {
                     i = i + 1;
                 }
@@ -48,20 +52,23 @@ export default class Quadtree {
     }
 
     retrieve(rect) {
-        let index = this.getIndex(rect);
+        let indices = this.getIndex(rect);
         let result = this.objects;
 
         if (this.nodes[0]) {
-            if (index !== -1) {
-                result = [...result, ...this.nodes[index].retrieve(rect)];
+            if (indices.length) {
+                indices.forEach(i => {
+                    result = result.concat(this.nodes[i].retrieve(rect));
+                });
             } else {
                 for (let i = 0; i < this.nodes.length; i++) {
-                    result = [...result, ...this.nodes[i].retrieve(rect)];
+                    result = result.concat(this.nodes[i].retrieve(rect));
                 }
             }
         }
 
-        return result;
+        // return unique objects only
+        return result.filter((x,n,a) => a.indexOf(x) === n);
     };
 
     clear() {
@@ -76,28 +83,54 @@ export default class Quadtree {
         this.nodes = [];
     };
 
-    private getIndex(rect: Rect) {
+    private getIndex(rect: Rect): number[] {
         let index = -1;
         let xmid = this.bounds.x + this.width2;
         let ymid = this.bounds.y + this.height2;
-        let top = (rect.y < ymid && rect.y + rect.height < ymid);
+        
+        let results = [];
+
+        let top = (rect.y < ymid); // <= ???
         let bottom = (rect.y > ymid);
 
-        if (rect.x < xmid && rect.x + rect.width < xmid) {
+        if (rect.x < xmid) {
             if (top) {
-                index = 1;
+                // 0 or 1
+                results.push(1);
+                
+                if (rect.x + rect.width > xmid) {
+                    results.push(0);
+                }
+
+                if (rect.y + rect.height > ymid) {
+                    results.push(2);
+                }
+
+                // check for quadrant 3 here
+                if (rect.y + rect.height + rect.x + rect.width > xmid) {
+                    results.push(3);
+                }
             } else if (bottom) {
-                index = 2;
+                // 2 or 3
+                results.push(2);
+
+                if (rect.x + rect.width > xmid) {
+                    results.push(3);
+                }
             }
+
         } else if (rect.x > xmid) {
             if (top) {
-                index = 0;
-            } else if (bottom) {
-                index = 3;
+                results.push(0);
+                if (rect.y + rect.height > ymid) {
+                    results.push(3);
+                }
+            } else {
+                results.push(3)
             }
         }
 
-        return index;
+        return results;
     };
 
     private split() {
