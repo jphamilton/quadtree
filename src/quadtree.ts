@@ -96,7 +96,7 @@ export default class Quadtree {
     
         // rect can completely fit within the left quadrants
         if (rect.x < xmid && rect.x + rect.width < xmid) {
-            if(top) {
+            if (top) {
                 index = 1;
             } else if (bottom) {
                 index = 2;
@@ -104,7 +104,7 @@ export default class Quadtree {
     
         // rect can completely fit within the right quadrants 
         } else if (rect.x > xmid) {
-            if(top) {
+            if (top) {
                 index = 0;
             } else if (bottom) {
                 index = 3;
