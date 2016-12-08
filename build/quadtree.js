@@ -42,15 +42,6 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var quadtree_1 = __webpack_require__(1);
-	window.Quadtree = quadtree_1.default;
-
-
-/***/ },
-/* 1 */
 /***/ function(module, exports) {
 
 	"use strict";
