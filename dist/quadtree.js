@@ -1,3 +1,4 @@
+var Quadtree =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -56,14 +57,14 @@
 	        this.level = level;
 	        this.objects = [];
 	        this.nodes = [];
-	        this.height2 = this.bounds.height / 2;
-	        this.width2 = this.bounds.width / 2;
+	        this.xmid = this.bounds.x + this.bounds.width / 2;
+	        this.ymid = this.bounds.y + this.bounds.height / 2;
 	    }
 	    Quadtree.prototype.insert = function (rect) {
 	        var _this = this;
 	        var i = 0;
 	        var indices;
-	        if (this.nodes[0]) {
+	        if (this.nodes.length) {
 	            indices = this.getIndex(rect);
 	            if (indices.length) {
 	                indices.forEach(function (i) {
@@ -74,19 +75,24 @@
 	        }
 	        this.objects.push(rect);
 	        if (this.objects.length > this.maxObjects && this.level < this.maxLevels) {
-	            if (!this.nodes[0]) {
+	            if (!this.nodes.length) {
 	                this.split();
 	            }
-	            while (i < this.objects.length) {
-	                indices = this.getIndex(this.objects[i]);
+	            var _loop_1 = function () {
+	                indices = this_1.getIndex(this_1.objects[i]);
 	                if (indices.length) {
-	                    indices.forEach(function (i) {
-	                        _this.nodes[i].insert(_this.objects.splice(i, 1)[0]);
+	                    var object_1 = this_1.objects.splice(i, 1)[0];
+	                    indices.forEach(function (n) {
+	                        _this.nodes[n].insert(object_1);
 	                    });
 	                }
 	                else {
 	                    i = i + 1;
 	                }
+	            };
+	            var this_1 = this;
+	            while (i < this.objects.length) {
+	                _loop_1();
 	            }
 	        }
 	    };
@@ -94,7 +100,7 @@
 	        var _this = this;
 	        var indices = this.getIndex(rect);
 	        var result = this.objects;
-	        if (this.nodes[0]) {
+	        if (this.nodes.length) {
 	            if (indices.length) {
 	                indices.forEach(function (i) {
 	                    result = result.concat(_this.nodes[i].retrieve(rect));
@@ -120,23 +126,27 @@
 	    };
 	    ;
 	    Quadtree.prototype.getIndex = function (rect) {
+	        if (!rect) {
+	            debugger;
+	        }
 	        var index = -1;
-	        var xmid = this.bounds.x + this.width2;
-	        var ymid = this.bounds.y + this.height2;
 	        var results = [];
+	        var _a = this, xmid = _a.xmid, ymid = _a.ymid;
 	        var top = (rect.y < ymid);
 	        var bottom = (rect.y > ymid);
 	        if (rect.x < xmid) {
 	            if (top) {
 	                results.push(1);
+	                var zero = false;
 	                if (rect.x + rect.width > xmid) {
 	                    results.push(0);
+	                    zero = true;
 	                }
 	                if (rect.y + rect.height > ymid) {
 	                    results.push(2);
-	                }
-	                if (rect.y + rect.height + rect.x + rect.width > xmid) {
-	                    results.push(3);
+	                    if (zero) {
+	                        results.push(3);
+	                    }
 	                }
 	            }
 	            else if (bottom) {
@@ -162,8 +172,8 @@
 	    ;
 	    Quadtree.prototype.split = function () {
 	        var _this = this;
-	        var width = Math.round(this.width2);
-	        var height = Math.round(this.height2);
+	        var width = Math.round(this.bounds.width / 2);
+	        var height = Math.round(this.bounds.height / 2);
 	        var x = Math.round(this.bounds.x);
 	        var y = Math.round(this.bounds.y);
 	        var create = function (x, y) {
@@ -180,8 +190,7 @@
 	    ;
 	    return Quadtree;
 	}());
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = Quadtree;
+	exports.Quadtree = Quadtree;
 
 
 /***/ }

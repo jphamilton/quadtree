@@ -3,10 +3,12 @@ var webpack = require('webpack');
 module.exports = {  
   entry: './src/quadtree.ts',
   output: {
-    filename: './build/quadtree.js'
+    filename: './dist/quadtree.js',
+    libraryTarget: 'var',
+    library: 'Quadtree'
   },
   resolve: {
-    extensions: ['', '.webpack.js', '.web.js', '.ts', '.js']
+    extensions: ['', '.ts', '.js']
   },
   // plugins: [
   //   new webpack.optimize.UglifyJsPlugin(

@@ -2,35 +2,33 @@
 <html>
 
 <head>
-    <title>Quadtree-js</title>
-    <style>
-        body {
-            background-color: #000000;
-        }
-    </style>
+	<title>quadtree</title>
+	<style>
+		body {
+			background-color: #000000;
+		}
+	</style>
 </head>
 
 <body>
-    <div class="outer">
-        <div id="canvasContainer">
-            <canvas id="canvas" width="640" height="480"></canvas>
-        </div>
-        <div class="ctrl">
-            <div class="ctrl-left">
-                <button id="btn_add">add random object</button>
-                <button id="btn_add_10">add 10 objects</button>
-                <button id="btn_clear">clear tree</button>
-            </div>
-            <div class="ctrl-right">
-                Total Objects: <span id="cnt_total">0</span><br /> Candidates: <span id="cnt_cand">0</span> (<span id="cnt_perc">0</span>%)
-            </div>
-        </div>
-    </div>
-    <script src="example/example.js"></script>
-    <script>		
-		
+	<div class="outer">
+		<div id="canvasContainer">
+			<canvas id="canvas" width="640" height="480"></canvas>
+		</div>
+		<div class="ctrl">
+			<div class="ctrl-left">
+				<button id="btn_add">add random object</button>
+				<button id="btn_add_10">add 10 objects</button>
+				<button id="btn_clear">clear tree</button>
+			</div>
+			<div class="ctrl-right">
+				Total Objects: <span id="cnt_total">0</span><br /> Candidates: <span id="cnt_cand">0</span> (<span id="cnt_perc">0</span>%)
+			</div>
+		</div>
+	</div>
+	<script src="dist/quadtree.js"></script>
+	<script>		
 		(function(w, M) {
-			
 			w.requestAnimFrame = (function () {
 				return  w.requestAnimationFrame ||
 					w.webkitRequestAnimationFrame ||
@@ -45,7 +43,7 @@
 			/*
 			 * the main Quadtree
 			 */
-			var myTree = new Quadtree({
+			var myTree = new Quadtree.Quadtree({
 				x: 0,
 				y: 0,
 				width: 640,
