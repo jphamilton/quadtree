@@ -57,11 +57,16 @@ var Quadtree =
 	        this.level = level;
 	        this.objects = [];
 	        this.nodes = [];
-	        this.xmid = this.bounds.x + this.bounds.width / 2;
-	        this.ymid = this.bounds.y + this.bounds.height / 2;
+	        this.width2 = this.bounds.width / 2;
+	        this.height2 = this.bounds.height / 2;
+	        this.xmid = this.bounds.x + this.width2;
+	        this.ymid = this.bounds.y + this.height2;
 	    }
 	    Quadtree.prototype.insert = function (rect) {
 	        var _this = this;
+	        if (!rect) {
+	            return;
+	        }
 	        var i = 0;
 	        var indices;
 	        if (this.nodes.length) {
@@ -98,6 +103,9 @@ var Quadtree =
 	    };
 	    Quadtree.prototype.retrieve = function (rect) {
 	        var _this = this;
+	        if (!rect) {
+	            return [];
+	        }
 	        var indices = this.getIndex(rect);
 	        var result = this.objects;
 	        if (this.nodes.length) {
@@ -127,14 +135,13 @@ var Quadtree =
 	    ;
 	    Quadtree.prototype.getIndex = function (rect) {
 	        if (!rect) {
-	            debugger;
+	            return [];
 	        }
-	        var index = -1;
 	        var results = [];
 	        var _a = this, xmid = _a.xmid, ymid = _a.ymid;
-	        var top = (rect.y < ymid);
+	        var top = (rect.y <= ymid);
 	        var bottom = (rect.y > ymid);
-	        if (rect.x < xmid) {
+	        if (rect.x <= xmid) {
 	            if (top) {
 	                results.push(1);
 	                var zero = false;
@@ -172,8 +179,8 @@ var Quadtree =
 	    ;
 	    Quadtree.prototype.split = function () {
 	        var _this = this;
-	        var width = Math.round(this.bounds.width / 2);
-	        var height = Math.round(this.bounds.height / 2);
+	        var width = Math.round(this.width2);
+	        var height = Math.round(this.height2);
 	        var x = Math.round(this.bounds.x);
 	        var y = Math.round(this.bounds.y);
 	        var create = function (x, y) {

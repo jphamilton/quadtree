@@ -1,24 +1,31 @@
-/// <reference path="quadtree.d.ts" />
+///<reference path='quadtree.d.ts' />
 
 export class Quadtree {
 
     nodes: Quadtree[];
     objects: Rect[];
+    width2: number;
+    height2: number;
     xmid: number;
     ymid: number;
 
-    constructor(private bounds: Rect, private maxObjects: number = 10, private maxLevels: number = 4, private level = 0) {
+    constructor(public bounds: Rect, private maxObjects: number = 10, private maxLevels: number = 4, private level = 0) {
         this.objects = [];
         this.nodes = [];
-        this.xmid = this.bounds.x + this.bounds.width / 2;
-        this.ymid = this.bounds.y + this.bounds.height / 2;
+        this.width2 = this.bounds.width / 2;
+        this.height2 = this.bounds.height / 2;
+        this.xmid = this.bounds.x + this.width2;
+        this.ymid = this.bounds.y + this.height2;
     }
 
     insert(rect: Rect) {
+        if (!rect) {
+            return;
+        }
+        
         let i = 0;
         let indices: number[];
 
-        //if we have subnodes ...
         if (this.nodes.length) {
             indices = this.getIndex(rect);
 
@@ -52,7 +59,11 @@ export class Quadtree {
         }
     }
 
-    retrieve(rect) {
+    retrieve(rect: Rect) {
+        if (!rect) {
+            return [];
+        }
+        
         let indices = this.getIndex(rect);
         let result = this.objects;
 
@@ -68,7 +79,6 @@ export class Quadtree {
             }
         }
 
-        // return unique objects only
         return result.filter((x, n, a) => a.indexOf(x) === n);
     };
 
@@ -86,20 +96,15 @@ export class Quadtree {
 
     private getIndex(rect: Rect): number[] {
         if (!rect) {
-            debugger;
+            return [];
         }
+        
+        const results = [];
+        const { xmid, ymid } = this;
+        const top = (rect.y <= ymid); 
+        const bottom = (rect.y > ymid);
 
-        let index = -1;
-        let results = [];
-        let {
-            xmid,
-            ymid
-        } = this;
-
-        let top = (rect.y < ymid); // <= ???
-        let bottom = (rect.y > ymid);
-
-        if (rect.x < xmid) {
+        if (rect.x <= xmid) {
             if (top) {
                 results.push(1);
                 let zero = false;
@@ -116,7 +121,6 @@ export class Quadtree {
                     }
                 }
             } else if (bottom) {
-                // 2 or 3
                 results.push(2);
 
                 if (rect.x + rect.width > xmid) {
@@ -139,13 +143,13 @@ export class Quadtree {
     };
 
     private split() {
-        let width = Math.round(this.bounds.width / 2);
-        let height = Math.round(this.bounds.height / 2);
-        let x = Math.round(this.bounds.x);
-        let y = Math.round(this.bounds.y);
+        const width = Math.round(this.width2);
+        const height = Math.round(this.height2);
+        const x = Math.round(this.bounds.x);
+        const y = Math.round(this.bounds.y);
 
-        let create = (x, y) => {
-            let bounds: Rect = {
+        const create = (x, y) => {
+            const bounds: Rect = {
                 x: x,
                 y: y,
                 width: width,

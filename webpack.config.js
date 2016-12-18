@@ -10,13 +10,6 @@ module.exports = {
   resolve: {
     extensions: ['', '.ts', '.js']
   },
-  // plugins: [
-  //   new webpack.optimize.UglifyJsPlugin(
-  //     {
-  //       compress: { warnings: false }
-  //     }
-  //   )
-  // ],
   module: {
     loaders: [
       { test: /\.ts$/, loader: 'ts' }
