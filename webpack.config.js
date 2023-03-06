@@ -1,18 +1,21 @@
-var webpack = require('webpack');
-
 module.exports = {  
   entry: './src/quadtree.ts',
+  mode: 'production',
   output: {
-    filename: './dist/quadtree.js',
+    filename: './quadtree.js',
     libraryTarget: 'var',
     library: 'Quadtree'
   },
   resolve: {
-    extensions: ['', '.ts', '.js']
+    extensions: ['.ts']
   },
   module: {
-    loaders: [
-      { test: /\.ts$/, loader: 'ts' }
+    rules: [
+      {
+      test: /\.tsx?$/,
+      use: 'ts-loader',
+      exclude: /node_modules/
+      }
     ]
   }
 }
