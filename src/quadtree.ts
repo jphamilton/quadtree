@@ -148,12 +148,12 @@ export class Quadtree {
         const x = Math.round(this.bounds.x);
         const y = Math.round(this.bounds.y);
 
-        const create = (x, y) => {
+        const create = (x: number, y: number) => {
             const bounds: Rect = {
-                x: x,
-                y: y,
-                width: width,
-                height: height
+                x,
+                y,
+                width,
+                height
             };
             return new Quadtree(bounds, this.maxObjects, this.maxLevels, this.level + 1);
         };
