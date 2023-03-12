@@ -1,5 +1,5 @@
-interface Rect {
-    x: number;
+interface Box {
+    x: number; 
     y: number;
     width: number;
     height: number;

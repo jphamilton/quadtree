@@ -3,13 +3,13 @@
 export class Quadtree {
 
     nodes: Quadtree[];
-    objects: Rect[];
+    objects: Box[];
     width2: number;
     height2: number;
     xmid: number;
     ymid: number;
 
-    constructor(public bounds: Rect, private maxObjects: number = 10, private maxLevels: number = 4, private level = 0) {
+    constructor(public bounds: Box, private maxObjects: number = 10, private maxLevels: number = 4, private level = 0) {
         this.objects = [];
         this.nodes = [];
         this.width2 = this.bounds.width / 2;
@@ -18,8 +18,8 @@ export class Quadtree {
         this.ymid = this.bounds.y + this.height2;
     }
 
-    insert(rect: Rect) {
-        if (!rect) {
+    insert(source: Box) {
+        if (!source) {
             return;
         }
         
@@ -27,17 +27,17 @@ export class Quadtree {
         let indices: number[];
 
         if (this.nodes.length) {
-            indices = this.getIndex(rect);
+            indices = this.getIndex(source);
 
             if (indices.length) {
                 indices.forEach(i => {
-                    this.nodes[i].insert(rect);
+                    this.nodes[i].insert(source);
                 });
                 return;
             }
         }
 
-        this.objects.push(rect);
+        this.objects.push(source);
 
         if (this.objects.length > this.maxObjects && this.level < this.maxLevels) {
             if (!this.nodes.length) {
@@ -59,22 +59,22 @@ export class Quadtree {
         }
     }
 
-    retrieve(rect: Rect) {
-        if (!rect) {
+    retrieve(target: Box) {
+        if (!target) {
             return [];
         }
         
-        let indices = this.getIndex(rect);
+        let indices = this.getIndex(target);
         let result = this.objects;
 
         if (this.nodes.length) {
             if (indices.length) {
                 indices.forEach(i => {
-                    result = result.concat(this.nodes[i].retrieve(rect));
+                    result = result.concat(this.nodes[i].retrieve(target));
                 });
             } else {
                 for (let i = 0; i < this.nodes.length; i++) {
-                    result = result.concat(this.nodes[i].retrieve(rect));
+                    result = result.concat(this.nodes[i].retrieve(target));
                 }
             }
         }
@@ -94,27 +94,27 @@ export class Quadtree {
         this.nodes = [];
     };
 
-    private getIndex(rect: Rect): number[] {
-        if (!rect) {
+    private getIndex(box: Box): number[] {
+        if (!box) {
             return [];
         }
         
         const results = [];
         const { xmid, ymid } = this;
-        const top = (rect.y <= ymid); 
-        const bottom = (rect.y > ymid);
+        const top = (box.y <= ymid); 
+        const bottom = (box.y > ymid);
 
-        if (rect.x <= xmid) {
+        if (box.x <= xmid) {
             if (top) {
                 results.push(1);
                 let zero = false;
 
-                if (rect.x + rect.width > xmid) {
+                if (box.x + box.width > xmid) {
                     results.push(0);
                     zero = true;
                 }
 
-                if (rect.y + rect.height > ymid) {
+                if (box.y + box.height > ymid) {
                     results.push(2);
                     if (zero) {
                         results.push(3);
@@ -123,15 +123,15 @@ export class Quadtree {
             } else if (bottom) {
                 results.push(2);
 
-                if (rect.x + rect.width > xmid) {
+                if (box.x + box.width > xmid) {
                     results.push(3);
                 }
             }
 
-        } else if (rect.x > xmid) {
+        } else if (box.x > xmid) {
             if (top) {
                 results.push(0);
-                if (rect.y + rect.height > ymid) {
+                if (box.y + box.height > ymid) {
                     results.push(3);
                 }
             } else {
@@ -149,7 +149,7 @@ export class Quadtree {
         const y = Math.round(this.bounds.y);
 
         const create = (x: number, y: number) => {
-            const bounds: Rect = {
+            const bounds: Box = {
                 x,
                 y,
                 width,
