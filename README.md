@@ -96,5 +96,5 @@ This is a debug render from my Asteroids clone. The collision candidate regardin
 
 Note the area marked "A". As objects enter a quadrant, the quadtree further subdivide (up to <code>maxLevels</code>). If the ship were at position "A", there would still be only 1 candidate - the single rock inside the quadrant.  
 
-![Example](https://raw.githubusercontent.com/jphamilton/quadtree/example.png)
+![Example](https://github.com/jphamilton/quadtree/blob/master/example.png?raw=true)
 
