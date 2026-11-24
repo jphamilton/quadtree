@@ -1,1 +1,141 @@
-var Quadtree;(()=>{"use strict";var t={};(()=>{var e=t;Object.defineProperty(e,"__esModule",{value:!0}),e.Quadtree=void 0;var s=function(){function t(t,e,s,i){void 0===e&&(e=10),void 0===s&&(s=4),void 0===i&&(i=0),this.bounds=t,this.maxObjects=e,this.maxLevels=s,this.level=i,this.objects=[],this.nodes=[],this.width2=this.bounds.width/2,this.height2=this.bounds.height/2,this.xmid=this.bounds.x+this.width2,this.ymid=this.bounds.y+this.height2}return t.prototype.insert=function(t){var e=this;if(t){var s,i=0;if(this.nodes.length&&(s=this.getIndex(t)).length)s.forEach((function(s){e.nodes[s].insert(t)}));else if(this.objects.push(t),this.objects.length>this.maxObjects&&this.level<this.maxLevels){this.nodes.length||this.split();for(var h=function(){if((s=n.getIndex(n.objects[i])).length){var t=n.objects.splice(i,1)[0];s.forEach((function(s){e.nodes[s].insert(t)}))}else i+=1},n=this;i<this.objects.length;)h()}}},t.prototype.retrieve=function(t){var e=this;if(!t)return[];var s=this.getIndex(t),i=this.objects;if(this.nodes.length)if(s.length)s.forEach((function(s){i=i.concat(e.nodes[s].retrieve(t))}));else for(var h=0;h<this.nodes.length;h++)i=i.concat(this.nodes[h].retrieve(t));return i.filter((function(t,e,s){return s.indexOf(t)===e}))},t.prototype.clear=function(){this.objects=[];for(var t=0;t<this.nodes.length;t++)this.nodes[t]&&this.nodes[t].clear();this.nodes=[]},t.prototype.getIndex=function(t){if(!t)return[];var e=[],s=this.xmid,i=this.ymid,h=t.y<=i,n=t.y>i;if(t.x<=s)if(h){e.push(1);var o=!1;t.x+t.width>s&&(e.push(0),o=!0),t.y+t.height>i&&(e.push(2),o&&e.push(3))}else n&&(e.push(2),t.x+t.width>s&&e.push(3));else t.x>s&&(h?(e.push(0),t.y+t.height>i&&e.push(3)):e.push(3));return e},t.prototype.split=function(){var e=this,s=Math.round(this.width2),i=Math.round(this.height2),h=Math.round(this.bounds.x),n=Math.round(this.bounds.y),o=function(h,n){return new t({x:h,y:n,width:s,height:i},e.maxObjects,e.maxLevels,e.level+1)};this.nodes=[o(h+s,n),o(h,n),o(h,n+i),o(h+s,n+i)]},t}();e.Quadtree=s})(),Quadtree=t})();
+export class Quadtree {
+    bounds;
+    maxObjects;
+    maxLevels;
+    level = 0;
+    nodes = [];
+    objects = [];
+    width2;
+    height2;
+    xmid;
+    ymid;
+    constructor(bounds, maxObjects = 10, maxLevels = 4) {
+        this.bounds = bounds;
+        this.maxObjects = maxObjects;
+        this.maxLevels = maxLevels;
+        this.width2 = bounds.width / 2;
+        this.height2 = bounds.height / 2;
+        this.xmid = bounds.x + this.width2;
+        this.ymid = bounds.y + this.height2;
+    }
+    insert(source) {
+        if (!Quadtree.isValid(source)) {
+            return;
+        }
+        if (this.level === 0 && !Quadtree.intersects(this.bounds, source)) {
+            return;
+        }
+        this.insertValid(source);
+    }
+    retrieve(target) {
+        if (!Quadtree.isValid(target)) {
+            return [];
+        }
+        if (this.level === 0 && !Quadtree.intersects(this.bounds, target)) {
+            return [];
+        }
+        return this.collect(target);
+    }
+    clear() {
+        this.objects = [];
+        for (const node of this.nodes) {
+            node.clear();
+        }
+        this.nodes = [];
+    }
+    insertValid(source) {
+        if (this.nodes.length) {
+            const indices = this.getIndex(source);
+            if (indices.length === 1) {
+                this.nodes[indices[0]].insertValid(source);
+                return;
+            }
+        }
+        this.objects.push(source);
+        if (this.objects.length <= this.maxObjects || this.level >= this.maxLevels) {
+            return;
+        }
+        if (!this.nodes.length) {
+            this.split();
+        }
+        let i = 0;
+        while (i < this.objects.length) {
+            const indices = this.getIndex(this.objects[i]);
+            if (indices.length !== 1) {
+                i++;
+                continue;
+            }
+            const object = this.objects.splice(i, 1)[0];
+            this.nodes[indices[0]].insertValid(object);
+        }
+    }
+    collect(target) {
+        const result = this.objects.slice();
+        if (!this.nodes.length) {
+            return result;
+        }
+        for (const index of this.getIndex(target)) {
+            result.push(...this.nodes[index].collect(target));
+        }
+        return result;
+    }
+    getIndex(box) {
+        const { xmid, ymid } = this;
+        const startIsNorth = box.y < ymid;
+        const startIsWest = box.x < xmid;
+        const endIsEast = box.x + box.width > xmid;
+        const endIsSouth = box.y + box.height > ymid;
+        const indices = [];
+        // 0 top-right, 1 top-left, 2 bottom-left, 3 bottom-right
+        if (startIsNorth && endIsEast) {
+            indices.push(0);
+        }
+        if (startIsWest && startIsNorth) {
+            indices.push(1);
+        }
+        if (startIsWest && endIsSouth) {
+            indices.push(2);
+        }
+        if (endIsEast && endIsSouth) {
+            indices.push(3);
+        }
+        return indices;
+    }
+    split() {
+        const { x, y, width, height } = this.bounds;
+        const { width2, height2 } = this;
+        const right = x + width2;
+        const bottom = y + height2;
+        const rightWidth = width - width2;
+        const bottomHeight = height - height2;
+        const level = this.level + 1;
+        const child = (cx, cy, cw, ch) => {
+            const node = new Quadtree({ x: cx, y: cy, width: cw, height: ch }, this.maxObjects, this.maxLevels);
+            node.level = level;
+            return node;
+        };
+        // top right, top left, bottom left, bottom right
+        this.nodes = [
+            child(right, y, rightWidth, height2),
+            child(x, y, width2, height2),
+            child(x, bottom, width2, bottomHeight),
+            child(right, bottom, rightWidth, bottomHeight),
+        ];
+    }
+    static isValid(box) {
+        return !!box
+            && Number.isFinite(box.x)
+            && Number.isFinite(box.y)
+            && Number.isFinite(box.width)
+            && Number.isFinite(box.height)
+            && box.width >= 0
+            && box.height >= 0;
+    }
+    static intersects(a, b) {
+        return a.x < b.x + b.width
+            && a.x + a.width > b.x
+            && a.y < b.y + b.height
+            && a.y + a.height > b.y;
+    }
+}
+//# sourceMappingURL=quadtree.js.map

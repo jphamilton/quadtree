@@ -2,12 +2,24 @@
   "name": "quadtree",
   "version": "1.0.0",
   "description": "Quadtree implementation in JavaScript",
-  "main": "quadtree.js",
+  "type": "module",
+  "main": "./dist/quadtree.js",
+  "types": "./dist/quadtree.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/quadtree.d.ts",
+      "import": "./dist/quadtree.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "example": "webpack --config webpack.example.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack --watch"
+    "build": "tsc",
+    "prepublishOnly": "tsc",
+    "pretest": "tsc",
+    "test": "node --test",
+    "watch": "tsc --watch"
   },
   "keywords": [
     "Quadtree",
@@ -16,10 +28,10 @@
   ],
   "author": "J.P. Hamilton",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "devDependencies": {
-    "ts-loader": "9.4.2",
-    "typescript": "4.9.5",
-    "webpack": "5.75.0",
-    "webpack-cli": "^5.0.1"
+    "typescript": "^7.0.2"
   }
 }

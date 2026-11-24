@@ -7,12 +7,12 @@ Games can potentially have dozens of objects on the screen at a time and checkin
 The quadtree acts as a first layer in a collision detection system. It takes an array of things your concerned about being hit (i.e your ship) and a list of things that can hit it (i.e. rocks) and returns a list of potential candidates. You can then check these candidates to see if an actual collision has occurred. This speeds things up dramatically.
 
 ## Note
-Minimally quadtree expects inputs with these properties describing a bounding box
+Minimally quadtree expects inputs with these properties describing a bounding box. `x` and `y` are the top-left corner. `width` and `height` must be finite and greater than or equal to zero. Boxes that do not intersect the tree bounds are ignored.
 
 ```
 interface Box {
-    x: number;      // origin
-    y: number;      // origin
+    x: number;      // top-left
+    y: number;      // top-left
     width: number;
     height: number;
 }
@@ -30,31 +30,35 @@ The code should be easy enough to change if you have, say:
 ## Usage
 
 ### Constructor
-```
-const tree = new Quadtree(bounds, maxObjects, maxLevels, level);
+
+The package is ESM. Build it with `npm run build`, then import the class:
+
+```js
+import { Quadtree } from "quadtree";
+
+const tree = new Quadtree(bounds, maxObjects, maxLevels);
 ```
 <code>bounds</code> - bounding box of your game screen
 
-<code>maxObjects</code> - max number of objects allowed into a quadrant before it subdivides (default is 1)
+<code>maxObjects</code> - max number of objects allowed into a quadrant before it subdivides (default is 10)
 
-<code>maxLevels</code> - max subvisions (default is 4)
-
-<code>level</code> - depth of tree, always use default which is 1
+<code>maxLevels</code> - max subdivisions (default is 4)
 
 ### Methods
 <code>insert(source: Box)</code>
 
-Insert collision source into tree
+Insert collision source into tree. Invalid boxes, and boxes that do not intersect the tree bounds, are ignored.
 
 <code>retrieve(target: Box)</code>
 
-Retrieve collision candidates from the tree based on target
+Retrieve collision candidates from the tree based on target. Returns an empty array when the target is invalid or outside the tree bounds.
 
 ## A Contrived Example
 
-```
+```js
+import { Quadtree } from "quadtree";
 
-// Create new tree at origin (center of the screen) using defaults
+// Create new tree at the top-left of the screen using defaults
 const tree = new Quadtree({
             x: 0, 
             y: 0, 
